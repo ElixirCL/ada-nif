@@ -18,6 +18,8 @@ stdenv.mkDerivation {
     glibc.static
   ];
 
+  NIX_LDFLAGS = "-L${glibc}/lib -L${glibc.static}/lib -L${gcc.cc.lib}/lib";
+
   dontConfigure = true;
 
   buildPhase = ''
@@ -28,7 +30,7 @@ stdenv.mkDerivation {
     export GCC_INCLUDE_DIR="-I${gcc.cc}/include"
 
     # alr build
-    gprbuild
+    gprbuild -P erlang_nifs.gpr -XLIBRARY_TYPE=relocatable
 
     runHook postBuild
   '';
@@ -41,11 +43,13 @@ stdenv.mkDerivation {
       --no-manifest \
       --mode=usage
 
-    for dir in obj/Debug obj/development obj; do
-      if [ -f "$dir/Erlang_Nifs.so" ]; then
-        cp "$dir/Erlang_Nifs.so" $out
-      fi
-    done
+    cp -r ./lib $out
+
+    # for dir in lib; do
+    #   if [ -f "$dir/Erlang_Nifs.so.0.1.0-dev" ]; then
+    #     cp "$dir/Erlang_Nifs.so.0.1.0-dev" "$out/Erlang_Nifs.so"
+    #   fi
+    # done
 
     runHook postInstall
   '';
