@@ -27,10 +27,18 @@
             gnat
             gprbuild
             gdb
+            alire
+            erlang
+            glibc.dev
             glibc.static
+            git
           ];
           shellHook = ''
             echo "Available commands: gnat, gprbuild, gdb"
+
+            export ERLANG_INCLUDE_DIR="-I${pkgs.erlang}/lib/erlang/usr/include"
+            export GLIBC_INCLUDE_DIR="-I${pkgs.glibc.dev}/include"
+            export GCC_INCLUDE_DIR="-I${pkgs.gcc.cc}/include"
           '';
         };
       });

@@ -1,0 +1,58 @@
+with "config/erlang_nifs_config.gpr";
+project Erlang_Nifs is
+
+   -- Erlang_Include_Dir : External ("ERLANG_INCLUDE_DIR", "");
+
+   for Languages use ("ada", "C++");
+
+   for Library_Name use "Erlang_Nifs";
+   for Library_Version use Project'Library_Name & ".so." & Erlang_Nifs_Config.Crate_Version;
+
+   for Library_Interface use ("examples");
+   for Library_Auto_Init use "true";
+   for Library_Dir use "lib";
+
+   for Source_Dirs use ("src/", "config/");
+   for Object_Dir use "obj/" & Erlang_Nifs_Config.Build_Profile;
+   for Create_Missing_Dirs use "True";
+
+   type Library_Type_Type is ("relocatable", "static", "static-pic");
+   Library_Type : Library_Type_Type :=
+     external ("ERLANG_NIFS_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static-pic"));
+   for Library_Kind use Library_Type;
+
+   package Compiler is
+      for Default_Switches ("Ada") use Erlang_Nifs_Config.Ada_Compiler_Switches & ("-gnata", "-gnatW8");
+      for Default_Switches ("C++") use (External ("ERLANG_INCLUDE_DIR", ""), External ("GLIBC_INCLUDE_DIR", ""), External ("GCC_INCLUDE_DIR", ""));
+   end Compiler;
+
+   -- for Library_Builder use "gcc -shared";
+   for Archive_Builder use ("true"); -- no-op
+   for Archive_Indexer use ("true"); -- no-op
+
+   Options_File := external ("OPTIONS_FILE", "unknown");
+   Temp_Dir := external ("TMPDIR", "unknown");
+
+   case Library_Type is
+      when "static-pic" =>
+         for Library_Options use ("-lc",
+                                  "-lstdc++",
+                                  -- "@" & Temp_Dir & Options_File, -- NOTE: this is from alr environment (alire.toml)
+                                  "-o" & Project'Library_Name & ".so");
+      when others =>
+         null;
+   end case;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+   package Clean is
+     for Artifacts_In_Object_Dir use Clean'Artifacts_In_Object_Dir & (Project'Library_Name & ".so");
+   end Clean;
+
+end Erlang_Nifs;
