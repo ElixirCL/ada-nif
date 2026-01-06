@@ -1,0 +1,8 @@
+environment:ERLANG_LIB_BUNDLE=erl -noshell -eval 'io:fwrite(code:root_dir())' -eval 'init:stop()'
+environment:OPTIONS_FILE=/ada_nifs_linker_options.in
+environment:RUNTIME_DIR=dirname $(gcc --print-libgcc)
+environment:RUNTIME_LIB=/adalib/libgnat_pic.a
+external:ERLANG_NIFS_LIBRARY_TYPE=default
+external:LIBRARY_TYPE=default
+profile:erlang_nifs=DEVELOPMENT
+switches:erlang_nifs=-Og,-fdata-sections,-ffunction-sections,-g,-gnat2022,-gnatVa,-gnatW8,-gnatw.X,-gnatwa

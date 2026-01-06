@@ -1,0 +1,23 @@
+name = "erlang_nifs"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["Andy Arvanitis"]
+maintainers = ["Andy Arvanitis <andyarvanitis@gmail.com>"]
+maintainers-logins = ["andyarvanitis"]
+
+[build-switches]
+"*".style_checks = "No"
+"*".ada_version = "Ada2022"
+
+[environment]
+RUNTIME_DIR.append = "dirname $(gcc --print-libgcc)"
+RUNTIME_LIB.append = "/adalib/libgnat_pic.a"
+ERLANG_LIB_BUNDLE.append = "erl -noshell -eval 'io:fwrite(code:root_dir())' -eval 'init:stop()'"
+OPTIONS_FILE.append = "/ada_nifs_linker_options.in"
+
+[[actions]]
+type = "pre-build"
+command = [ "sh", "-c", """ DIR=$(eval ${RUNTIME_DIR}); \
+                            echo -L ${DIR} ${DIR}/${RUNTIME_LIB} \
+                            > ${TMPDIR}${OPTIONS_FILE} """ ]
